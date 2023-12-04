@@ -36,28 +36,22 @@ pub fn part_two(lines: &[String]) {
         ("0", 0),
     ]);
 
-    let re = Regex::new(r"(one|two|three|four|five|six|seven|eight|nine|[1-9])").unwrap();
+    let one = Regex::new(r"(one|two|three|four|five|six|seven|eight|nine|[1-9])").unwrap();
+    let two = Regex::new(r".*(one|two|three|four|five|six|seven|eight|nine|[1-9])").unwrap();
 
     let sum: u32 = lines
         .iter()
-        // .map(|line| {
-        //     println!("{}", line);
-        //     line
-        // })
-        .map(|line| re.find_iter(line))
-        .map(|mut captures| {
-            let first = match captures.next() {
-                Some(first) => first.as_str(),
-                None => unreachable!("first"),
-            };
-            let second = match captures.last() {
-                Some(second) => second.as_str(),
-                None => first,
-            };
+        .map(|line| {
+            let first = one.captures(line).unwrap();
+            let second = two.captures(line).unwrap();
+            (first, second)
+        })
+        .map(|captures| {
+            let (cap1, cap2) = captures;
 
-            let res = number_map.get(first).unwrap() * 10 + number_map.get(second).unwrap();
-            // println!("{res}");
-            res
+            let first = cap1.get(1).unwrap().as_str();
+            let second = cap2.get(1).unwrap().as_str();
+            number_map.get(first).unwrap() * 10 + number_map.get(second).unwrap()
         })
         .sum();
 
