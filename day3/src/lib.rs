@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Id {
     x: usize,
     y: usize,
@@ -32,7 +32,7 @@ impl Id {
 }
 
 pub fn part_one(lines: &[String]) {
-    let mut symbols: HashMap<(usize, usize), Vec<Id>> = HashMap::new();
+    let mut symbols = HashMap::new();
     let mut ids = Vec::new();
 
     extract_elements(lines, &mut symbols, &mut ids, false);
@@ -94,5 +94,23 @@ fn extract_elements(
 }
 
 pub fn part_two(lines: &[String]) {
-    println!("Not done yet");
+    let mut symbols = HashMap::new();
+    let mut ids = Vec::new();
+
+    extract_elements(lines, &mut symbols, &mut ids, true);
+
+    for id in ids {
+        for (x, y) in id.get_adjacent() {
+            if let Some(v) = symbols.get_mut(&(x, y)) {
+                v.push(id.clone());
+            }
+        }
+    }
+
+    let sum = symbols
+        .values()
+        .filter(|v| v.len() == 2)
+        .fold(0, |acc, v| acc + v[0].id * v[1].id);
+
+    println!("Part two: {}", sum);
 }
