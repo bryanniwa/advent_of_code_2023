@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::HashMap;
 
 #[derive(Debug)]
 struct Id {
@@ -32,16 +32,16 @@ impl Id {
 }
 
 pub fn part_one(lines: &[String]) {
-    let mut symbols = HashSet::new();
+    let mut symbols: HashMap<(usize, usize), Vec<Id>> = HashMap::new();
     let mut ids = Vec::new();
 
-    extract_elements(lines, &mut symbols, &mut ids);
+    extract_elements(lines, &mut symbols, &mut ids, false);
 
     let mut sum = 0;
     for id in ids {
         let val = id.id;
         for (x, y) in id.get_adjacent() {
-            if symbols.contains(&(x, y)) {
+            if symbols.contains_key(&(x, y)) {
                 sum += val;
                 break;
             }
@@ -51,7 +51,12 @@ pub fn part_one(lines: &[String]) {
     println!("Part one: {}", sum);
 }
 
-fn extract_elements(lines: &[String], symbols: &mut HashSet<(usize, usize)>, ids: &mut Vec<Id>) {
+fn extract_elements(
+    lines: &[String],
+    symbols: &mut HashMap<(usize, usize), Vec<Id>>,
+    ids: &mut Vec<Id>,
+    p2: bool,
+) {
     lines.iter().enumerate().for_each(|(y, line)| {
         let mut chars = line.chars().enumerate();
         while let Some((x, c)) = chars.next() {
@@ -68,7 +73,10 @@ fn extract_elements(lines: &[String], symbols: &mut HashSet<(usize, usize)>, ids
                         num.id = num.id * 10 + val;
                     } else {
                         if c != '.' {
-                            symbols.insert((x, y));
+                            if p2 && c != '*' {
+                                break;
+                            }
+                            symbols.insert((x, y), Vec::new());
                         }
                         break;
                     }
@@ -76,7 +84,10 @@ fn extract_elements(lines: &[String], symbols: &mut HashSet<(usize, usize)>, ids
 
                 ids.push(num);
             } else if c != '.' {
-                symbols.insert((x, y));
+                if p2 && c != '*' {
+                    continue;
+                }
+                symbols.insert((x, y), Vec::new());
             }
         }
     });
